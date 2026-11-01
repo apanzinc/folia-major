@@ -62,6 +62,11 @@
   /* Tailwind 的 font-sans 工具类指向界面字体。AppShell、登录窗口和几个网格视图的根容器带着
      font-sans，不接上的话这些子树会退回 Tailwind 默认栈，把设置里的界面字体盖掉。 */
   --font-sans: var(--font-ui);
+  /* font-mono / font-serif 也接到界面字体：界面里有一批等宽表面（快捷键徽标、时长、音轨数、
+     集合视图的说明文字）和衬线标题（探索页），不接上的话点了「全局界面字体」仍然看见系统
+     等宽/衬线字体，像是没覆盖全。真正的代码、日志等仍可用等宽字体，它们通过显式栈自带。 */
+  --font-mono: "MiSans UI", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-serif: "MiSans UI", ui-serif, Georgia, "Times New Roman", var(--font-cjk-serif), serif;
 }
 
 /* Custom Global Styles */

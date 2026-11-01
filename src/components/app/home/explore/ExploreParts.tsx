@@ -21,9 +21,9 @@ export const EXPLORE_TOKENS = {
     '--ex-tint-strong': 'color-mix(in srgb, var(--text-primary) 10%, transparent)',
 } as React.CSSProperties;
 
-// What the tab's headings are set in: the serif the app already ships (index.css) for what is
-// written in Chinese, and the system's own for the rest.
-export const EXPLORE_SERIF = '"Folia Noto Serif SC", "Iowan Old Style", Georgia, "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", serif';
+// What the tab's headings are set in. They followed the shipped Noto Serif before, but the
+// interface font setting is meant to cover the whole UI, so headings follow it too.
+export const EXPLORE_SERIF = '"MiSans UI", "Segoe UI", system-ui, var(--font-cjk-sans), sans-serif';
 
 export const FOCUS_RING = 'outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--text-primary)]';
 export const EXPLORE_PILL = `rounded-full border border-[color:var(--ex-line)] text-xs font-medium text-[color:var(--ex-soft)] transition-colors hover:bg-[var(--ex-tint)] hover:text-[color:var(--text-primary)] disabled:cursor-default ${FOCUS_RING}`;

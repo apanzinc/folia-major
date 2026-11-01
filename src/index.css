@@ -25,7 +25,7 @@
    body 也落到 Microsoft YaHei；它们缺大部分越南语预组合字母，排版时拆成字母加组合符号，符号落在字母旁边。
    界面是越南语时把越南语字形齐全的 Segoe UI 放到它们前面；别的系统没有 Segoe UI，照旧往后找（macOS 的 system-ui 本身就齐全）。 */
 :root:lang(vi) {
-  --font-sans: "Segoe UI", ui-sans-serif, system-ui, var(--font-cjk-sans), sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-ui: "Segoe UI", ui-sans-serif, system-ui, var(--font-cjk-sans), sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 @font-face {
@@ -59,6 +59,9 @@
   /* 界面字体：默认系统栈；运行时按设置被改写。越南语需要的 Segoe UI 已在栈里，
      所以不必再为 :lang(vi) 单独覆盖 body 的字体。 */
   --font-ui: 'Inter', "Segoe UI", system-ui, var(--font-cjk-sans), sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* Tailwind 的 font-sans 工具类指向界面字体。AppShell、登录窗口和几个网格视图的根容器带着
+     font-sans，不接上的话这些子树会退回 Tailwind 默认栈，把设置里的界面字体盖掉。 */
+  --font-sans: var(--font-ui);
 }
 
 /* Custom Global Styles */

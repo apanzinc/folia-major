@@ -57,7 +57,9 @@ describe('fontStacks', () => {
 
         const stack = resolveThemeFontStack(theme);
 
-        expect(stack.startsWith('"Inter"')).toBe(true);
+        // 内置无衬线栈以随应用发布的 MiSans 开头（歌词/字幕画布也用这条栈），Inter 仍排在后面。
+        expect(stack.startsWith('"MiSans UI"')).toBe(true);
+        expect(stack).toContain('"Inter"');
     });
 
     it('lets translation text try the custom font before using the translation-specific fallback stack', () => {

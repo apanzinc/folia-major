@@ -23,6 +23,10 @@ export const MOD_SYSTEM_ENABLED_STORAGE_KEY = 'mod_system_enabled';
 
 export const HIDE_TASKBAR_ICON_STORAGE_KEY = 'hide_taskbar_icon';
 
+// Mirrored from the main process's APP_ICON_VARIANT: which artwork the window, the taskbar entry and
+// the tray show. The packaged .exe icon cannot change at run time, so this only repaints live windows.
+export const APP_ICON_VARIANT_STORAGE_KEY = 'app_icon_variant';
+
 export const REMOTE_CONTROL_SKIP_TASKBAR_STORAGE_KEY = 'remote_control_skip_taskbar';
 
 export const REMOTE_CONTROL_HIDE_TITLEBAR_STORAGE_KEY = 'remote_control_hide_titlebar';
@@ -60,6 +64,15 @@ const readGpuPreference = (value: unknown): GpuPreference | null => (
     GPU_PREFERENCES.includes(value as GpuPreference) ? value as GpuPreference : null
 );
 
+/** Which stored artwork the app paints its window, taskbar entry and tray with. */
+export type AppIconVariant = 'light' | 'dark';
+
+export const APP_ICON_VARIANTS: readonly AppIconVariant[] = ['light', 'dark'];
+
+const readAppIconVariant = (value: unknown): AppIconVariant | null => (
+    APP_ICON_VARIANTS.includes(value as AppIconVariant) ? value as AppIconVariant : null
+);
+
 export type DesktopSettingsState = {
     minimizeToTray: boolean;
     /** Close button hides the main window to the tray instead of quitting the app. */
@@ -73,6 +86,8 @@ export type DesktopSettingsState = {
      */
     modSystemEnabled: boolean;
     hideTaskbarIcon: boolean;
+    /** Which artwork the window, taskbar entry and tray show. The main process owns the value. */
+    appIconVariant: AppIconVariant;
     hideRemoteControlTaskbarIcon: boolean;
     /** Remote control window: never reveal the top floating window-control bar. */
     hideRemoteControlTitlebar: boolean;
@@ -101,13 +116,14 @@ export type DesktopSettingsState = {
     backgroundThrottling: boolean;
     /** Transient (never persisted), from the main process: false on native Wayland, where always-on-top is silently ignored. */
     windowAlwaysOnTopSupported: boolean;
-    setDesktopPreferenceSnapshot: (settings: { MINIMIZE_TO_TRAY?: unknown; CLOSE_TO_TRAY?: unknown; HIDE_TASKBAR_ICON?: unknown; REMOTE_CONTROL_SKIP_TASKBAR?: unknown; REMOTE_CONTROL_HIDE_TITLEBAR?: unknown; REMOTE_CONTROL_CLICK_THROUGH?: unknown; REMOTE_CONTROL_EXPAND_COVER?: unknown; REMOTE_CONTROL_TEXT_SHADE?: unknown; VOICE_INPUT_PAUSE_ENABLED?: unknown; PREVENT_DISPLAY_SLEEP_DURING_PLAYBACK?: unknown; MOD_SYSTEM_ENABLED?: unknown; GPU_PREFERENCE?: unknown; BACKGROUND_THROTTLING?: unknown; wallpaper_mode?: unknown; wallpaper_entry_confirmed?: unknown; wallpaper_mac_autohide_dock?: unknown; window_always_on_top_supported?: unknown; }) => void;
+    setDesktopPreferenceSnapshot: (settings: { MINIMIZE_TO_TRAY?: unknown; CLOSE_TO_TRAY?: unknown; HIDE_TASKBAR_ICON?: unknown; APP_ICON_VARIANT?: unknown; REMOTE_CONTROL_SKIP_TASKBAR?: unknown; REMOTE_CONTROL_HIDE_TITLEBAR?: unknown; REMOTE_CONTROL_CLICK_THROUGH?: unknown; REMOTE_CONTROL_EXPAND_COVER?: unknown; REMOTE_CONTROL_TEXT_SHADE?: unknown; VOICE_INPUT_PAUSE_ENABLED?: unknown; PREVENT_DISPLAY_SLEEP_DURING_PLAYBACK?: unknown; MOD_SYSTEM_ENABLED?: unknown; GPU_PREFERENCE?: unknown; BACKGROUND_THROTTLING?: unknown; wallpaper_mode?: unknown; wallpaper_entry_confirmed?: unknown; wallpaper_mac_autohide_dock?: unknown; window_always_on_top_supported?: unknown; }) => void;
     handleToggleMinimizeToTray: (enable: boolean) => void;
     handleToggleCloseToTray: (enable: boolean) => void;
     handleToggleVoiceInputPause: (enable: boolean) => void;
     handleToggleModSystem: (enable: boolean) => void;
     handleTogglePreventDisplaySleepDuringPlayback: (enable: boolean) => void;
     handleToggleHideTaskbarIcon: (enable: boolean) => void;
+    handleSetAppIconVariant: (variant: AppIconVariant) => void;
     handleToggleHideRemoteControlTaskbarIcon: (enable: boolean) => void;
     handleToggleHideRemoteControlTitlebar: (enable: boolean) => void;
     handleToggleRemoteControlClickThrough: (enable: boolean) => void;
@@ -136,6 +152,7 @@ export const useDesktopSettingsStore = create<DesktopSettingsState>((set, get) =
     preventDisplaySleepDuringPlayback: getStoredBoolean(PREVENT_DISPLAY_SLEEP_DURING_PLAYBACK_STORAGE_KEY, false),
     modSystemEnabled: getStoredBoolean(MOD_SYSTEM_ENABLED_STORAGE_KEY, false),
     hideTaskbarIcon: getStoredBoolean(HIDE_TASKBAR_ICON_STORAGE_KEY, false),
+    appIconVariant: readAppIconVariant(getStoredString(APP_ICON_VARIANT_STORAGE_KEY, 'light')) ?? 'light',
     hideRemoteControlTaskbarIcon: getStoredBoolean(REMOTE_CONTROL_SKIP_TASKBAR_STORAGE_KEY, false),
     hideRemoteControlTitlebar: getStoredBoolean(REMOTE_CONTROL_HIDE_TITLEBAR_STORAGE_KEY, false),
     remoteControlClickThrough: getStoredBoolean(REMOTE_CONTROL_CLICK_THROUGH_STORAGE_KEY, false),
@@ -174,6 +191,11 @@ export const useDesktopSettingsStore = create<DesktopSettingsState>((set, get) =
         if (typeof settings.HIDE_TASKBAR_ICON === 'boolean') {
             patch.hideTaskbarIcon = settings.HIDE_TASKBAR_ICON;
             setStoredBoolean(HIDE_TASKBAR_ICON_STORAGE_KEY, settings.HIDE_TASKBAR_ICON);
+        }
+        const appIconVariant = readAppIconVariant(settings.APP_ICON_VARIANT);
+        if (appIconVariant) {
+            patch.appIconVariant = appIconVariant;
+            setStoredString(APP_ICON_VARIANT_STORAGE_KEY, appIconVariant);
         }
         if (typeof settings.REMOTE_CONTROL_SKIP_TASKBAR === 'boolean') {
             patch.hideRemoteControlTaskbarIcon = settings.REMOTE_CONTROL_SKIP_TASKBAR;
@@ -284,6 +306,21 @@ export const useDesktopSettingsStore = create<DesktopSettingsState>((set, get) =
         setStatusMessage({
             type: 'info',
             text: i18n.t('notifications.' + (enable ? 'taskbarHidden' : 'taskbarRestored')),
+        });
+    },
+    // The main process owns the value: it repaints the open windows and the tray.
+    handleSetAppIconVariant: (variant) => {
+        if (variant === get().appIconVariant) {
+            return;
+        }
+        setStoredString(APP_ICON_VARIANT_STORAGE_KEY, variant);
+        set({ appIconVariant: variant });
+        if (window.electron?.saveSettings) {
+            void window.electron.saveSettings('APP_ICON_VARIANT', variant);
+        }
+        setStatusMessage({
+            type: 'info',
+            text: i18n.t('notifications.appIconChanged'),
         });
     },
     handleToggleHideRemoteControlTaskbarIcon: (enable) => {
@@ -423,6 +460,7 @@ export const selectDesktopSettingsSnapshot = (state: DesktopSettingsState) => ({
     preventDisplaySleepDuringPlayback: state.preventDisplaySleepDuringPlayback,
     modSystemEnabled: state.modSystemEnabled,
     hideTaskbarIcon: state.hideTaskbarIcon,
+    appIconVariant: state.appIconVariant,
     hideRemoteControlTaskbarIcon: state.hideRemoteControlTaskbarIcon,
     hideRemoteControlTitlebar: state.hideRemoteControlTitlebar,
     remoteControlClickThrough: state.remoteControlClickThrough,
@@ -437,6 +475,7 @@ export const selectDesktopSettingsSnapshot = (state: DesktopSettingsState) => ({
     handleToggleModSystem: state.handleToggleModSystem,
     handleTogglePreventDisplaySleepDuringPlayback: state.handleTogglePreventDisplaySleepDuringPlayback,
     handleToggleHideTaskbarIcon: state.handleToggleHideTaskbarIcon,
+    handleSetAppIconVariant: state.handleSetAppIconVariant,
     handleToggleHideRemoteControlTaskbarIcon: state.handleToggleHideRemoteControlTaskbarIcon,
     handleToggleHideRemoteControlTitlebar: state.handleToggleHideRemoteControlTitlebar,
     handleToggleRemoteControlClickThrough: state.handleToggleRemoteControlClickThrough,

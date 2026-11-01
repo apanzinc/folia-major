@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
 import { useDesktopSettingsStore } from '../../../../stores/useDesktopSettingsStore';
 import { usePlayerChromeSettingsStore } from '../../../../stores/usePlayerChromeSettingsStore';
-import { FoldedGroup, Group, Reveal, Row, Toggle, option, type SettingsGroupDef, type SettingsOptionDef } from '../kit';
+import { FoldedGroup, Group, Reveal, Row, Segmented, Toggle, option, type SettingsGroupDef, type SettingsOptionDef } from '../kit';
 import { WallpaperDisplayRow } from './desktop/WallpaperDisplayRow';
 import { hasWallpaperDisplayChoice } from './desktop/wallpaperDisplays';
 
@@ -18,6 +18,7 @@ const O = {
     minimizeToTray: option(WINDOW, 'minimizeToTray', 'options.minimizeToTray'),
     closeToTray: option(WINDOW, 'closeToTray', 'options.closeToTray'),
     hideTaskbarIcon: option(WINDOW, 'hideTaskbarIcon', 'options.hideTaskbarIcon'),
+    appIcon: option(WINDOW, 'appIcon', 'options.appIcon'),
     hideFullscreenButton: option(WINDOW, 'hideFullscreenButton', 'options.hideFullscreenButton'),
     nativeMacFullscreen: option(WINDOW, 'useNativeMacFullscreenButton', 'options.useNativeMacFullscreenButton'),
     wallpaperMode: option(WINDOW, 'wallpaperMode', 'options.wallpaperMode'),
@@ -45,6 +46,7 @@ const DesktopPage: React.FC = () => {
         minimizeToTray: state.minimizeToTray,
         closeToTray: state.closeToTray,
         hideTaskbarIcon: state.hideTaskbarIcon,
+        appIconVariant: state.appIconVariant,
         wallpaperMode: state.wallpaperMode,
         wallpaperDock: state.wallpaperMacAutohideDock,
         remoteTaskbarIcon: state.hideRemoteControlTaskbarIcon,
@@ -55,6 +57,7 @@ const DesktopPage: React.FC = () => {
         setMinimizeToTray: state.handleToggleMinimizeToTray,
         setCloseToTray: state.handleToggleCloseToTray,
         setHideTaskbarIcon: state.handleToggleHideTaskbarIcon,
+        setAppIconVariant: state.handleSetAppIconVariant,
         setWallpaperMode: state.handleToggleWallpaperMode,
         setWallpaperDock: state.handleToggleWallpaperMacAutohideDock,
         setRemoteTaskbarIcon: state.handleToggleHideRemoteControlTaskbarIcon,
@@ -87,6 +90,16 @@ const DesktopPage: React.FC = () => {
                 <Reveal when={desktop.hideTaskbarIcon}>
                     <Row sub notice={t('options.hideTaskbarIconNotice')} />
                 </Reveal>
+                <Row option={O.appIcon} hint={t('options.appIconDesc')}>
+                    <Segmented
+                        value={desktop.appIconVariant}
+                        options={[
+                            { value: 'light', label: t('options.appIconLight') },
+                            { value: 'dark', label: t('options.appIconDark') },
+                        ]}
+                        onChange={desktop.setAppIconVariant}
+                    />
+                </Row>
                 <Row option={O.hideFullscreenButton} hint={t('options.hideFullscreenButtonDesc')}>
                     <Toggle checked={chrome.hideFullscreenButton} onChange={chrome.setHideFullscreenButton} />
                 </Row>

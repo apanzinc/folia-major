@@ -194,8 +194,16 @@ describe('the colour that fills the window', () => {
         expect(colours.length).toBeGreaterThanOrEqual(6);
         for (const colour of colours) {
             const shades = platformShades(colour);
-            expect(getRelativeLuminance(shades.light), colour).toBeGreaterThan(getRelativeLuminance(colour));
-            expect(getRelativeLuminance(shades.dark), colour).toBeLessThan(getRelativeLuminance(colour));
+            const base = getRelativeLuminance(colour);
+            if (base > 0) {
+                expect(getRelativeLuminance(shades.light), colour).toBeGreaterThan(base);
+                expect(getRelativeLuminance(shades.dark), colour).toBeLessThan(base);
+            } else {
+                // Pure black (Spotify and Qishui use it as their mark colour) has no lighter end to
+                // shade into: both ends round back to black.
+                expect(shades.light, colour).toBe('#000000');
+                expect(shades.dark, colour).toBe('#000000');
+            }
             expect(shades.corner, colour).toMatch(/^rgba\(\d+, \d+, \d+, 0\.7\)$/);
             expect(shades.surface, colour).toContain(`linear-gradient(135deg, ${shades.light}, ${colour} 46%, ${shades.dark})`);
             // Plain colours only: nothing a browser without relative colours cannot read.

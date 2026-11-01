@@ -2594,6 +2594,8 @@ const DISCORD_RICH_PRESENCE_ENABLED_SETTING_KEY = 'DISCORD_RICH_PRESENCE_ENABLED
 const MINIMIZE_TO_TRAY_SETTING_KEY = 'MINIMIZE_TO_TRAY';
 const CLOSE_TO_TRAY_SETTING_KEY = 'CLOSE_TO_TRAY';
 const HIDE_TASKBAR_ICON_SETTING_KEY = 'HIDE_TASKBAR_ICON';
+// Which artwork the app uses as its window/taskbar/tray icon: the regular logo or its dark version.
+const APP_ICON_VARIANT_SETTING_KEY = 'APP_ICON_VARIANT';
 const REMOTE_CONTROL_ALWAYS_ON_TOP_SETTING_KEY = 'REMOTE_CONTROL_ALWAYS_ON_TOP';
 const REMOTE_CONTROL_SKIP_TASKBAR_SETTING_KEY = 'REMOTE_CONTROL_SKIP_TASKBAR';
 const MAIN_WINDOW_ALWAYS_ON_TOP_SETTING_KEY = 'MAIN_WINDOW_ALWAYS_ON_TOP';
@@ -2623,6 +2625,11 @@ const bundledMacTrayIcon2xPath = path.join(__dirname, '../build/trayTemplate@2x.
 const extraResourceMacTrayIconPath = path.join(process.resourcesPath, 'trayTemplate.png');
 const extraResourceMacTrayIcon2xPath = path.join(process.resourcesPath, 'trayTemplate@2x.png');
 const APP_ICON_PATH = fs.existsSync(bundledAppIconPath) ? bundledAppIconPath : extraResourceIconPath;
+const bundledAppIconDarkPath = path.join(__dirname, '../build/icon-dark.png');
+const extraResourceIconDarkPath = path.join(process.resourcesPath, 'icon-dark.png');
+// Stored choice: the regular (light) artwork, or the dark version of the same mark.
+const APP_ICON_VARIANTS = ['light', 'dark'];
+const DEFAULT_APP_ICON_VARIANT = 'light';
 const THUMBAR_ICON_DIR = path.join(__dirname, '../build/thumbar');
 
 function loadThumbarIcon(name) {
@@ -2649,11 +2656,11 @@ const THUMBAR_BUTTON_ICONS = process.platform === 'win32'
 // macOS menu bar icons should be monochrome template images with transparent backgrounds.
 function createTrayIconImage() {
   if (process.platform !== 'darwin') {
-    return APP_ICON_PATH;
+    return getAppIconPath();
   }
 
   if (!nativeImage || typeof nativeImage.createFromPath !== 'function') {
-    return APP_ICON_PATH;
+    return getAppIconPath();
   }
 
   const trayImagePath = fs.existsSync(bundledMacTrayIconPath)
@@ -2683,6 +2690,50 @@ function createTrayIconImage() {
   }
 
   return trayImage;
+}
+
+function normalizeAppIconVariant(value) {
+  return APP_ICON_VARIANTS.includes(value) ? value : DEFAULT_APP_ICON_VARIANT;
+}
+
+function readAppIconVariant() {
+  return normalizeAppIconVariant(store.get(APP_ICON_VARIANT_SETTING_KEY));
+}
+
+function getAppIconPathForVariant(variant) {
+  if (variant !== 'dark') {
+    return APP_ICON_PATH;
+  }
+  if (fs.existsSync(bundledAppIconDarkPath)) {
+    return bundledAppIconDarkPath;
+  }
+  return fs.existsSync(extraResourceIconDarkPath) ? extraResourceIconDarkPath : APP_ICON_PATH;
+}
+
+function getAppIconPath() {
+  return getAppIconPathForVariant(readAppIconVariant());
+}
+
+// Re-paint every window (and the tray / Dock) after the user switches artwork. The packaged exe
+// icon cannot change at run time: it keeps the regular logo baked into the installer.
+function applyAppIconVariant() {
+  const iconPath = getAppIconPath();
+  for (const win of BrowserWindow.getAllWindows()) {
+    if (!win.isDestroyed()) {
+      win.setIcon(iconPath);
+    }
+  }
+  if (process.platform === 'darwin' && app.dock && typeof app.dock.setIcon === 'function') {
+    try {
+      app.dock.setIcon(iconPath);
+    } catch (error) {
+      console.warn('[Icon] Failed to update the Dock icon', error);
+    }
+  }
+  if (appTray && !appTray.isDestroyed()) {
+    appTray.setImage(createTrayIconImage());
+    refreshTrayMenu();
+  }
 }
 
 function readStoredBoolean(settingKey, fallback = false) {
@@ -2715,6 +2766,7 @@ function getPublicSettings() {
     [MINIMIZE_TO_TRAY_SETTING_KEY]: readStoredBoolean(MINIMIZE_TO_TRAY_SETTING_KEY, false),
     [CLOSE_TO_TRAY_SETTING_KEY]: readStoredBoolean(CLOSE_TO_TRAY_SETTING_KEY, false),
     [HIDE_TASKBAR_ICON_SETTING_KEY]: readStoredBoolean(HIDE_TASKBAR_ICON_SETTING_KEY, false),
+    [APP_ICON_VARIANT_SETTING_KEY]: readAppIconVariant(),
     [REMOTE_CONTROL_ALWAYS_ON_TOP_SETTING_KEY]: readStoredBoolean(REMOTE_CONTROL_ALWAYS_ON_TOP_SETTING_KEY, true),
     [REMOTE_CONTROL_SKIP_TASKBAR_SETTING_KEY]: readStoredBoolean(REMOTE_CONTROL_SKIP_TASKBAR_SETTING_KEY, false),
     [REMOTE_CONTROL_HIDE_TITLEBAR_SETTING_KEY]: readStoredBoolean(REMOTE_CONTROL_HIDE_TITLEBAR_SETTING_KEY, false),
@@ -5524,7 +5576,7 @@ function createRemoteControlWindow() {
     maximizable: false,
     alwaysOnTop: remoteControlAlwaysOnTop,
     skipTaskbar: remoteControlSkipTaskbarEnabled,
-    icon: APP_ICON_PATH,
+    icon: getAppIconPath(),
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       nodeIntegration: false,
@@ -5714,7 +5766,7 @@ function createWindow(options = {}) {
       vibrancy: (!useTransparentWindow && enableNativeBlur) && process.platform === 'darwin' ? 'fullscreen-ui' : undefined,
       backgroundMaterial: (!useTransparentWindow && enableNativeBlur) && process.platform === 'win32' ? 'acrylic' : undefined,
       autoHideMenuBar: true,
-      icon: APP_ICON_PATH,
+      icon: getAppIconPath(),
       skipTaskbar: mainWindowSkipTaskbarEnabled,
       // Desktop windows already live below every normal window; alwaysOnTop is meaningless here.
       alwaysOnTop: useWallpaperGeometry ? false : mainWindowAlwaysOnTop,
@@ -6575,6 +6627,13 @@ ipcMain.handle('save-settings', (event, key, value) => {
     }
     console.info(`[Gpu] Preference set to ${value}; takes effect on the next launch`);
   }
+  if (key === APP_ICON_VARIANT_SETTING_KEY) {
+    // Only the two stored artwork names are accepted: an unknown value must not hide the icon.
+    if (normalizeAppIconVariant(value) !== value) {
+      return getPublicSettings();
+    }
+    nextValue = value;
+  }
   if (
     key === MINIMIZE_TO_TRAY_SETTING_KEY ||
     key === CLOSE_TO_TRAY_SETTING_KEY ||
@@ -6600,6 +6659,12 @@ ipcMain.handle('save-settings', (event, key, value) => {
     nextValue = Boolean(value);
   }
   store.set(key, nextValue);
+
+  if (key === APP_ICON_VARIANT_SETTING_KEY) {
+    // Re-paint the open windows and the tray right away; the stored choice also feeds the next
+    // window that opens.
+    applyAppIconVariant();
+  }
 
   if (key === BACKGROUND_THROTTLING_SETTING_KEY || key === WALLPAPER_MODE_SETTING_KEY) {
     backgroundThrottling.refresh();

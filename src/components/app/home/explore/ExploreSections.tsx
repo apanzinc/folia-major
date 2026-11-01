@@ -83,7 +83,7 @@ const Shelf: React.FC<ShelfProps> = ({ section, form, batch, arrival, base, leav
                 <div className="mb-5 flex items-center gap-2.5">
                     {/* The heading is what its title comes up from under. It is higher than the row, so that no stroke
                         of the title is cut, and takes the row's height of it: the row is as high as its buttons. */}
-                    <h2 className="-my-1 min-w-0 overflow-hidden text-[28px] font-medium leading-10 tracking-[0.01em]" style={{ fontFamily: EXPLORE_SERIF }}>
+                    <h2 className="-my-1 min-w-0 overflow-hidden text-[28px] font-ui-display leading-10 tracking-[0.01em]" style={{ fontFamily: EXPLORE_SERIF }}>
                         <motion.span variants={TITLE} custom={arrival} className="block truncate">{section.title}</motion.span>
                     </h2>
                     <motion.span aria-hidden variants={RULE} custom={arrival} data-explore-rule className="ml-1 h-px min-w-6 flex-1 origin-left bg-[var(--ex-line)]" />

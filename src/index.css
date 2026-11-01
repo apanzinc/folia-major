@@ -19,6 +19,15 @@
   --font-cjk-serif: "Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", "Noto Serif JP", "Source Han Serif JP";
   --font-sans: ui-sans-serif, system-ui, var(--font-cjk-sans), sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, var(--font-cjk-serif), serif;
+  /* 可变字重的界面档位（#）：MiSans 的 wght 轴是 150–700，Tailwind 自带 400/500/600/700 四档挤在一起，
+     28px 的分区标题和 12px 的说明文字看着一样重，层次出不来。下面几档拉开距离，组件里用
+     font-ui-* 工具类写明语气：micro 角标时间戳、note 次要说明、label 行标签/歌名、heading 分组标题、
+     display 页面大标题。 */
+  --font-weight-ui-micro: 320;
+  --font-weight-ui-note: 350;
+  --font-weight-ui-label: 510;
+  --font-weight-ui-heading: 620;
+  --font-weight-ui-display: 660;
 }
 
 /* 越南语一个字母上常叠两个符号（ệ、ộ、ở）。中文 Windows 上 system-ui 解析成 Microsoft YaHei UI，没装 Inter 时
@@ -67,6 +76,47 @@
      等宽/衬线字体，像是没覆盖全。真正的代码、日志等仍可用等宽字体，它们通过显式栈自带。 */
   --font-mono: "MiSans UI", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-serif: "MiSans UI", ui-serif, Georgia, "Times New Roman", var(--font-cjk-serif), serif;
+}
+
+/* 可变字重的默认层级（#）：正文 390；小号说明、时间戳、徽标没写 font-* 工具类时自动降到细档，
+   组件里显式写了字重的仍以 utilities 层的 class 为准（base 层始终输给 utilities 层）。
+   7–8px 的微型徽标反而略加粗：那个尺寸下细笔画糊成一团，读不出来。
+   字重轴只到 700，font-extrabold/black 会被浏览器夹在 700，所以强调最多到 bold。 */
+@layer base {
+  html,
+  body {
+    font-weight: 390;
+  }
+
+  h1 {
+    font-weight: 660;
+  }
+
+  h2,
+  h3 {
+    font-weight: 620;
+  }
+
+  strong,
+  b {
+    font-weight: 620;
+  }
+
+  :where(.text-\[7px\], .text-\[8px\]) {
+    font-weight: 430;
+  }
+
+  :where(.text-\[9px\], .text-\[10px\]) {
+    font-weight: 340;
+  }
+
+  :where(.text-\[11px\]) {
+    font-weight: 355;
+  }
+
+  :where(.text-xs) {
+    font-weight: 360;
+  }
 }
 
 /* Custom Global Styles */

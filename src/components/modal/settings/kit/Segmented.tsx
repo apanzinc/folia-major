@@ -43,7 +43,7 @@ export const Segmented = <T extends string>({ value, options, onChange, fill, di
                         onClick={() => {
                             if (!selected) onChange(option.value);
                         }}
-                        className={`st-t-fast relative h-7 whitespace-nowrap rounded-md text-[13px] transition-colors disabled:cursor-not-allowed ${fill ? 'min-w-0 flex-1 px-1.5' : 'px-3'}${option.disabled ? ' opacity-40' : ''} ${selected ? 'text-[color:var(--st-t1)]' : 'text-[color:var(--st-t2)] enabled:hover:text-[color:var(--st-t1)]'}`}
+                        className={`st-t-fast relative h-7 whitespace-nowrap rounded-md text-[13px] font-ui-label transition-colors disabled:cursor-not-allowed ${fill ? 'min-w-0 flex-1 px-1.5' : 'px-3'}${option.disabled ? ' opacity-40' : ''} ${selected ? 'text-[color:var(--st-t1)]' : 'text-[color:var(--st-t2)] enabled:hover:text-[color:var(--st-t1)]'}`}
                     >
                         {selected && (
                             // One element shared by the options: framer-motion moves it from the old

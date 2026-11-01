@@ -581,7 +581,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
                                             </div>
                                             <div className="min-w-0 flex-1">
                                                 <div className="flex items-center gap-2">
-                                                    <span className="truncate text-sm font-medium">{title}</span>
+                                                    <span className="truncate text-sm font-ui-label">{title}</span>
                                                     <span
                                                         className={`shrink-0 rounded-md px-1.5 py-0.5 font-mono text-[10px] ${isDaylight ? 'bg-black/8 text-zinc-700' : 'bg-white/10 text-zinc-200'
                                                             }`}

@@ -64,7 +64,7 @@ export const SettingsSideList: React.FC<SettingsSideListProps> = ({
                 className={`flex h-8 shrink-0 items-center gap-2.5 whitespace-nowrap rounded-lg px-2.5 text-left text-[13px] transition-colors md:w-full ${isActive ? 'bg-[var(--st-fill2)] text-[color:var(--st-t1)]' : 'text-[color:var(--st-t2)] hover:bg-[var(--st-fill)]'}`}
             >
                 <Icon size={16} className={`hidden shrink-0 md:block ${isActive ? '' : 'opacity-70'}`} />
-                <span className="truncate">{label}</span>
+                <span className="truncate font-ui-label">{label}</span>
             </button>
         );
     };

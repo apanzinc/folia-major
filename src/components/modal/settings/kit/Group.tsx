@@ -34,7 +34,7 @@ export const Group: React.FC<GroupProps> = ({ def, bare, action, preview, foot, 
         <SettingsAnchor anchorId={def.id} label={title} className={GROUP_SPACING_CLASS}>
             {!bare && (
                 <div className="mb-2 flex min-h-6 items-center justify-between gap-3 px-1">
-                    <h3 className="text-[13px] font-semibold leading-5 text-[color:var(--st-t2)]">{title}</h3>
+                    <h3 className="text-[13px] font-ui-heading leading-5 text-[color:var(--st-t2)]">{title}</h3>
                     {action}
                 </div>
             )}

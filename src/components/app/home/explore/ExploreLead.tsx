@@ -66,7 +66,7 @@ const LeadLine: React.FC<{ item: OmniExploreItem; place: number; hasWideSlot: bo
                 </span>
             </span>
             <span className="block min-w-0 flex-1">
-                <span {...MORPH_TITLE} className="block truncate text-sm font-medium">{face.title}</span>
+                <span {...MORPH_TITLE} className="block truncate text-sm font-ui-label">{face.title}</span>
                 {face.subtitle && <span className="mt-0.5 block truncate text-xs text-[color:var(--ex-soft)]">{face.subtitle}</span>}
             </span>
             {playing
@@ -126,7 +126,7 @@ const LargeEntry: React.FC<{ item: OmniExploreItem; arrival: Arrival; onSelect: 
                 </span>
             </span>
             <motion.span variants={CAPTION} custom={arrival} className="mt-5 block px-1">
-                <span {...MORPH_TITLE} className="line-clamp-2 text-[30px] font-medium leading-tight tracking-[0.01em]" style={{ fontFamily: EXPLORE_SERIF }}>{face.title}</span>
+                <span {...MORPH_TITLE} className="line-clamp-2 text-[30px] font-ui-display leading-tight tracking-[0.01em]" style={{ fontFamily: EXPLORE_SERIF }}>{face.title}</span>
                 {face.subtitle && <span className="mt-1.5 block truncate text-sm text-[color:var(--ex-soft)]">{face.subtitle}</span>}
             </motion.span>
         </motion.button>

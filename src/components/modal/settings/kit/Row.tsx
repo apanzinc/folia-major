@@ -111,7 +111,7 @@ export const Row: React.FC<RowProps> = ({ option, label, notice, hint, note, sub
                 ) : text ? (
                     <div className="relative min-w-0 flex-[1_1_140px]">
                         <div className="flex items-center gap-1.5 text-sm leading-5 text-[color:var(--st-t1)]">
-                            <span id={naming.labelId} className={`min-w-0${disabled ? ' opacity-40' : ''}`}>{text}</span>
+                            <span id={naming.labelId} className={`min-w-0 font-ui-label${disabled ? ' opacity-40' : ''}`}>{text}</span>
                             {notHere && (
                                 <span className="shrink-0 rounded bg-[var(--st-fill)] px-1.5 text-[11px] leading-[18px] text-[color:var(--st-t2)]">
                                     {t('options.settingsDesktopOnly')}

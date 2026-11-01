@@ -26,7 +26,7 @@ export const EXPLORE_TOKENS = {
 export const EXPLORE_SERIF = '"MiSans UI", "Segoe UI", system-ui, var(--font-cjk-sans), sans-serif';
 
 export const FOCUS_RING = 'outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--text-primary)]';
-export const EXPLORE_PILL = `rounded-full border border-[color:var(--ex-line)] text-xs font-medium text-[color:var(--ex-soft)] transition-colors hover:bg-[var(--ex-tint)] hover:text-[color:var(--text-primary)] disabled:cursor-default ${FOCUS_RING}`;
+export const EXPLORE_PILL = `rounded-full border border-[color:var(--ex-line)] text-xs font-ui-label text-[color:var(--ex-soft)] transition-colors hover:bg-[var(--ex-tint)] hover:text-[color:var(--text-primary)] disabled:cursor-default ${FOCUS_RING}`;
 
 /** The mark of an entry that opens a collection: its cover flies to the page that opens, and back
  * to this entry (found again by the mark's value) when the page is left. See gridMorphContract. */

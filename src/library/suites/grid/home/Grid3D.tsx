@@ -401,7 +401,7 @@ export const Grid3D: React.FC<Grid3DProps> = (props) => {
                                                     setHomeViewTab(tab.key);
                                                     focusActiveSlider();
                                                 }}
-                                                className={`relative inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors duration-300 whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-35 ${isActive ? activeTabBg : navPillInactiveText}`}
+                                                className={`relative inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs md:text-sm font-ui-label transition-colors duration-300 whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-35 ${isActive ? activeTabBg : navPillInactiveText}`}
                                             >
                                                 {isActive && (
                                                     <motion.span
@@ -417,7 +417,7 @@ export const Grid3D: React.FC<Grid3DProps> = (props) => {
                                 })}
                                 {props.extraTabs?.map(tab => (
                                     <button key={tab.id} type="button" onClick={tab.select}
-                                        className={`relative inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs md:text-sm font-medium whitespace-nowrap ${navPillInactiveText}`}>
+                                        className={`relative inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs md:text-sm font-ui-label whitespace-nowrap ${navPillInactiveText}`}>
                                         {tab.label}
                                     </button>
                                 ))}
@@ -425,7 +425,7 @@ export const Grid3D: React.FC<Grid3DProps> = (props) => {
                                     <button
                                         onClick={() => onOpenStagePlayer?.()}
                                         data-stage-active={stageIsActive ? 'true' : 'false'}
-                                        className={`relative inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors duration-300 whitespace-nowrap ${navPillInactiveText}`}
+                                        className={`relative inline-flex items-center justify-center px-4 py-1.5 rounded-full text-xs md:text-sm font-ui-label transition-colors duration-300 whitespace-nowrap ${navPillInactiveText}`}
                                     >
                                         <span className="relative z-10">{t('home.stage')}</span>
                                     </button>
@@ -442,7 +442,7 @@ export const Grid3D: React.FC<Grid3DProps> = (props) => {
                                         data-testid="home-lattice-pill"
                                         title={t(opensExploreWall ? 'home.latticeExplore' : 'home.lattice')}
                                         aria-label={t(opensExploreWall ? 'home.latticeExplore' : 'home.lattice')}
-                                        className={`group relative inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors duration-300 whitespace-nowrap ${navPillInactiveText}`}
+                                        className={`group relative inline-flex items-center justify-center px-3 py-1.5 rounded-full text-xs md:text-sm font-ui-label transition-colors duration-300 whitespace-nowrap ${navPillInactiveText}`}
                                     >
                                         <PanelsTopLeft size={14} className="relative z-10 shrink-0" />
                                         <span

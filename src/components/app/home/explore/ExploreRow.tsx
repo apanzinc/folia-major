@@ -68,7 +68,7 @@ const Card: React.FC<{ item: OmniExploreItem; arrival: Arrival; onSelect: () => 
                 </span>
             </span>
             <motion.span variants={CAPTION} custom={arrival} className={`mt-3 block ${isRound ? 'text-center' : 'pr-2'}`}>
-                <span {...MORPH_TITLE} className="line-clamp-2 text-sm font-medium leading-snug">{face.title}</span>
+                <span {...MORPH_TITLE} className="line-clamp-2 text-sm font-ui-label leading-snug">{face.title}</span>
                 {face.subtitle && <span className="mt-1 block truncate text-xs text-[color:var(--ex-soft)]">{face.subtitle}</span>}
             </motion.span>
         </motion.button>
@@ -151,7 +151,7 @@ export const SoloBody: React.FC<BodyProps> = ({ items, base, leave, calm, there,
                 <Hairline />
             </span>
             <motion.span variants={CAPTION} custom={arrival} className="block min-w-0 flex-1">
-                <span {...MORPH_TITLE} className="line-clamp-2 text-lg font-semibold leading-snug tracking-tight">{face.title}</span>
+                <span {...MORPH_TITLE} className="line-clamp-2 text-lg font-ui-heading leading-snug tracking-tight">{face.title}</span>
                 {face.subtitle && <span className="mt-1 block truncate text-sm text-[color:var(--ex-soft)]">{face.subtitle}</span>}
             </motion.span>
             <ActionMark

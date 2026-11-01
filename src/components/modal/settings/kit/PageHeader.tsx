@@ -29,7 +29,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, contents, activeI
     return (
         <header className="shrink-0">
             <div className={`flex items-center justify-between gap-3 pl-4 pr-3 pt-4 md:pl-8 md:pr-4 md:pt-5${hasTabs || summary !== undefined ? '' : ' border-b border-[var(--st-line)] pb-3 md:pb-4'}`}>
-                <h2 className="min-w-0 truncate text-xl font-semibold leading-8 text-[color:var(--st-t1)]">{title}</h2>
+                <h2 className="min-w-0 truncate text-xl font-ui-heading leading-8 text-[color:var(--st-t1)]">{title}</h2>
                 <button
                     type="button"
                     onClick={onClose}

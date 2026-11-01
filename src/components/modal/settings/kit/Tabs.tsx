@@ -93,7 +93,7 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, activeId, onSelect, action, co
                             aria-current={contents && current ? 'true' : undefined}
                             tabIndex={contents || tab.id === stopId ? 0 : -1}
                             onClick={() => onSelect(tab.id)}
-                            className={`st-focus-inside st-t-fast relative -mx-1 h-9 shrink-0 whitespace-nowrap rounded-md px-1 text-[13px] transition-colors hover:text-[color:var(--st-t1)] ${current ? 'text-[color:var(--st-t1)]' : 'text-[color:var(--st-t2)]'}`}
+                            className={`st-focus-inside st-t-fast relative -mx-1 h-9 shrink-0 whitespace-nowrap rounded-md px-1 text-[13px] font-ui-label transition-colors hover:text-[color:var(--st-t1)] ${current ? 'text-[color:var(--st-t1)]' : 'text-[color:var(--st-t2)]'}`}
                         >
                             {tab.label}
                             {tab.dot && <span aria-hidden className="ml-1.5 inline-block h-1.5 w-1.5 rounded-full bg-[var(--st-warn)] align-middle" />}

@@ -230,7 +230,7 @@ describe('folium.omni.listProviders', () => {
         expect(providers[0]).toEqual({
             providerId: 'netease',
             displayName: 'NetEase Cloud Music',
-            shortName: '网易云',
+            shortName: '网易云音乐',
             origin: 'host',
             selected: true,
             configured: true,

@@ -19,7 +19,7 @@ const songOf = (providerId: string): UnifiedSong => ({
 describe('sign-in in the browser through Omni', () => {
     it('registers YouTube Music as a desktop-only provider that needs an account', () => {
         const summary = omni.getProviderSummaries().find(provider => provider.providerId === 'ytm');
-        expect(summary).toMatchObject({ displayName: 'YouTube Music', shortName: 'YT Music', requiresAccount: true,
+        expect(summary).toMatchObject({ displayName: 'YouTube Music', shortName: 'YouTube Music', requiresAccount: true,
             availability: { configured: false, reason: 'runtime-unavailable' } });
     });
 

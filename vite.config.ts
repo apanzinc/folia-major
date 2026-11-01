@@ -268,7 +268,9 @@ export default async function viteConfig(_config: ConfigEnv): Promise<UserConfig
         // .claude holds the git worktrees of parallel sessions, each a full checkout of the repo:
         // watched, they cost one handle per file (hundreds of thousands on Windows), and setting
         // those up starves the dev server for minutes before it answers the first page.
-        ignored: ['**/release/**', '**/models/**', '**/.claude/**'],
+        // The editor's atomic saves leave `.<name>.tmpdir` scratch folders inside src/ for a moment;
+        // watching one races its own deletion and crashes the watcher with EBUSY on Windows.
+        ignored: ['**/release/**', '**/models/**', '**/.claude/**', '**/.*.tmpdir/**'],
       },
     },
     plugins: [

@@ -9,6 +9,7 @@ import { useThemeSettingsStore } from '../../stores/useThemeSettingsStore';
 import { useStageSettingsStore } from '../../stores/useStageSettingsStore';
 import { useLibraryWallLookStore } from '../../stores/useLibraryWallLookStore';
 import { usePlayerChromeSettingsStore } from '../../stores/usePlayerChromeSettingsStore';
+import { useUiFontSettingsStore } from '../../stores/useUiFontSettingsStore';
 
 // src/services/obs/visualSettingsConfig.ts
 // Everything compressConfig serializes except the theme. Reads the live settings store, so both
@@ -18,6 +19,7 @@ export function buildVisualSettingsConfig(): Record<string, unknown> {
   const storeStageSettings = useStageSettingsStore.getState();
   const storeThemeSettings = useThemeSettingsStore.getState();
   const storeTypographySettings = useTypographySettingsStore.getState();
+  const storeUiFontSettings = useUiFontSettingsStore.getState();
   const storeVisualizer = useVisualizerSettingsStore.getState();
   // The song-theme automation flags live in theme preferences, not the settings store. The overlay
   // ignores them, but a copied OBS URL is also a restore payload (the import box accepts one), so
@@ -73,6 +75,11 @@ export function buildVisualSettingsConfig(): Record<string, unknown> {
     // Only a system font's family name is portable; an uploaded font is a browser-local FontFace
     // (its generated family resolves nowhere else), so it is not carried.
     lyricsCustomFontFamily: storeTypographySettings.lyricsCustomFont?.source === 'system' ? storeTypographySettings.lyricsCustomFont.family : null,
+    // The interface font is a look, so it travels with a shared config: MiSans is bundled and always
+    // resolves, a named system family travels by name, and an uploaded file stays behind for the same
+    // reason as the lyrics font above.
+    uiFontMode: storeUiFontSettings.uiFontMode,
+    uiFontCustomFontFamily: storeUiFontSettings.uiFontCustomFont?.source === 'system' ? storeUiFontSettings.uiFontCustomFont.family : null,
     visualizerTunings: collectVisualizerTunings(storeVisualizer as unknown as Record<string, unknown>),
     // Frozen: the 13 lyric-style tunings below predate the visualizerTunings bundle, which carries any
     // new style. Do not add a lyric style here.

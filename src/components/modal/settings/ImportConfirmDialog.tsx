@@ -40,6 +40,7 @@ const GROUP_LABEL_KEYS: Record<ImportGroup, string> = {
 const DERIVED_LABEL_KEYS: Record<string, string> = {
     isCustomThemePreferred: 'options.importDerivedUnpin',
     uploadedLyricsFont: 'options.importDerivedUploadedFont',
+    uploadedUiFont: 'options.importDerivedUploadedUiFont',
 };
 
 // Field names that already have a label elsewhere in settings are reused as-is; the rest get one.
@@ -70,6 +71,8 @@ const FIELD_LABEL_KEYS: Record<string, string> = {
     disableVisualizerVignette: 'options.disableVisualizerVignette',
     staticMode: 'options.staticMode',
     lyricsCustomFontFamily: 'options.customFont',
+    uiFontMode: 'options.interfaceFont',
+    uiFontCustomFontFamily: 'options.interfaceFontCustom',
     songThemeAutoSwitchEnabled: 'options.autoSwitchSongTheme',
     songThemeAutoGenerateEnabled: 'options.autoGenerateSongTheme',
     randomVisualizerModePerSong: 'options.importFieldRandomMode',

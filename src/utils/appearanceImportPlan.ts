@@ -114,6 +114,10 @@ const FIELD_GROUPS: Record<string, ImportGroup> = {
     subtitleFontWeight: 'fonts',
     subtitleFontFamily: 'fonts',
     subtitleFontFallbackFamilies: 'fonts',
+    // The interface font. Grouped with fonts — that is what a person importing a look expects to see
+    // change — even though it styles the app chrome rather than the lyrics.
+    uiFontMode: 'fonts',
+    uiFontCustomFontFamily: 'fonts',
 
     visualizerBackgroundMode: 'background',
     backgroundOpacity: 'background',
@@ -172,6 +176,7 @@ const TRUTHY_GUARDED_FIELDS = new Set([
     'lyricsFontStyle',
     'lyricsFontFallbackFamilies',
     'lyricsCustomFontFamily',
+    'uiFontCustomFontFamily',
     'subtitleFontStyle',
     'subtitleFontFallbackFamilies',
     'visualizerTunings',
@@ -362,6 +367,11 @@ export interface ImportPlanInput {
     customFontLabel?: string | null;
     // From isFontFamilyAvailable. Undefined means it was not measured, which stays quiet.
     incomingFontAvailable?: boolean;
+    // The same three for the interface font: accepting a named family replaces an uploaded font, and
+    // an uploaded one exports as null, so the row needs its name to show what is on screen now.
+    uiFontCustomFontSource?: 'system' | 'uploaded' | null;
+    uiFontCustomFontLabel?: string | null;
+    incomingUiFontAvailable?: boolean;
     // Whether the custom theme is the mode on screen right now. Drives the activate row.
     isCustomThemeActive?: boolean;
     // Which browser-local assets exist here. A source that names one this machine does not have is
@@ -376,6 +386,9 @@ export function buildImportPlan({
     customFontSource,
     customFontLabel,
     incomingFontAvailable,
+    uiFontCustomFontSource,
+    uiFontCustomFontLabel,
+    incomingUiFontAvailable,
     isCustomThemeActive,
     assets = {},
 }: ImportPlanInput): ImportPlan {
@@ -459,6 +472,23 @@ export function buildImportPlan({
             continue;
         }
 
+        // The interface font row names what the picker shows too: an uploaded UI font is absent from
+        // `current` (only a system family is exported), so the label has to come from the store.
+        if (key === 'uiFontCustomFontFamily') {
+            const from = uiFontCustomFontLabel ?? (current[key] as string | null | undefined) ?? null;
+            const change: ImportChange = { group, key, from, to: incoming[key] };
+            const same = isSameValue(incoming[key], from);
+            if (!same && incomingUiFontAvailable === false) change.note = 'fontUnavailable';
+            record(change, same);
+            continue;
+        }
+
+        // A custom-mode row would promise a mode switch that the apply path skips when the config
+        // carries no portable family to go with it.
+        if (key === 'uiFontMode' && incoming[key] === 'custom' && !incoming.uiFontCustomFontFamily) {
+            continue;
+        }
+
         // The weight setters clamp to [100,900] and round to a step of 10, but the codec carries the
         // raw value. Diff against the value the setter will actually store, so the row shows what
         // will happen and a non-canonical incoming weight (a hand-authored or cross-version config)
@@ -512,6 +542,19 @@ export function buildImportPlan({
             to: false,
             derived: true,
             causedBy: ['lyricsCustomFontFamily'],
+        });
+    }
+
+    // The same loss for the interface font: taking a named family evicts an uploaded UI font, and
+    // the config never carries the file, so the diff above cannot show it.
+    if (incoming.uiFontCustomFontFamily && uiFontCustomFontSource === 'uploaded') {
+        changes.push({
+            group: 'fonts',
+            key: 'uploadedUiFont',
+            from: true,
+            to: false,
+            derived: true,
+            causedBy: ['uiFontCustomFontFamily'],
         });
     }
 

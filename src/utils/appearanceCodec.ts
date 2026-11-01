@@ -556,6 +556,8 @@ export const compressConfig = (config: any): string => {
     if (config.lyricsFontWeight !== undefined) minified.lfw = config.lyricsFontWeight;
     if (config.lyricsFontFallbackFamilies?.length) minified.lff = config.lyricsFontFallbackFamilies;
     if (config.lyricsCustomFontFamily) minified.lcf = config.lyricsCustomFontFamily;
+    if (config.uiFontMode) minified.ufm = config.uiFontMode;
+    if (config.uiFontCustomFontFamily) minified.ufc = config.uiFontCustomFontFamily;
     if (config.subtitleFontInheritsLyrics !== undefined) minified.sfi = config.subtitleFontInheritsLyrics;
     if (config.subtitleFontScale !== undefined) minified.sfsz = config.subtitleFontScale;
     if (config.subtitleFontStyle) minified.sfs = config.subtitleFontStyle;
@@ -656,6 +658,10 @@ export const decompressConfig = (str: string): any => {
         || parsed.sfw !== undefined
         || parsed.lff !== undefined
         || parsed.sfi !== undefined
+        // The interface font. Listed so a config that only changes the UI font is still recognised
+        // as the minified shape.
+        || parsed.ufm !== undefined
+        || parsed.ufc !== undefined
         || parsed.pdt !== undefined
         || parsed.snt !== undefined
         || parsed.smb !== undefined
@@ -707,6 +713,8 @@ export const decompressConfig = (str: string): any => {
         if (parsed.lfw !== undefined) decompressed.lyricsFontWeight = parsed.lfw;
         if (parsed.lff) decompressed.lyricsFontFallbackFamilies = parsed.lff;
         if (parsed.lcf) decompressed.lyricsCustomFontFamily = parsed.lcf;
+        if (parsed.ufm) decompressed.uiFontMode = parsed.ufm;
+        if (parsed.ufc) decompressed.uiFontCustomFontFamily = parsed.ufc;
         if (parsed.sfi !== undefined) decompressed.subtitleFontInheritsLyrics = parsed.sfi;
         if (parsed.sfsz !== undefined) decompressed.subtitleFontScale = parsed.sfsz;
         if (parsed.sfs) decompressed.subtitleFontStyle = parsed.sfs;
@@ -765,6 +773,7 @@ export const decompressConfig = (str: string): any => {
             'subtitleOverlayLayout', 'subtitleOverlayBackground', 'subtitleUpcomingLyricsBlur', 'subtitleOverlayOpacity',
             'showHarmonySubtitle', 'harmonySubtitleBackground',
             'lyricsFontStyle', 'lyricsFontScale', 'lyricsFontWeight', 'lyricsFontFallbackFamilies',
+            'uiFontMode', 'uiFontCustomFontFamily',
             'subtitleFontInheritsLyrics', 'subtitleFontScale', 'subtitleFontStyle', 'subtitleFontWeight', 'subtitleFontFamily',
             'subtitleFontFallbackFamilies', 'visualizerTunings', 'classicTuning',
             'cadenzaTuning', 'partitaTuning', 'fumeTuning', 'claddaghTuning', 'cappellaTuning',

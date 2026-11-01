@@ -129,6 +129,14 @@ export interface StoredCustomLyricsFont {
   fontId?: string;
 }
 
+/** The fonts 外观 lets the interface use: the bundled MiSans, the system stack, or the user's own. */
+export type UiFontMode = 'misans' | 'system' | 'custom';
+
+/** The interface font the user chose: a family they named, or a file they uploaded (kept in IndexedDB). */
+export type StoredCustomUiFont =
+  | { source: 'system'; family: string; }
+  | { source: 'uploaded'; family: string; label: string; fontId: string; };
+
 export interface DualTheme {
   light: Theme;
   dark: Theme;

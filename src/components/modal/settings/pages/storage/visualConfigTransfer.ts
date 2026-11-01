@@ -7,6 +7,7 @@ import { usePlayerChromeSettingsStore } from '../../../../../stores/usePlayerChr
 import { useStageSettingsStore } from '../../../../../stores/useStageSettingsStore';
 import { useThemeSettingsStore } from '../../../../../stores/useThemeSettingsStore';
 import { useTypographySettingsStore } from '../../../../../stores/useTypographySettingsStore';
+import { useUiFontSettingsStore } from '../../../../../stores/useUiFontSettingsStore';
 import { useVisualizerAssetStore } from '../../../../../stores/useVisualizerAssetStore';
 import { useVisualizerSettingsStore } from '../../../../../stores/useVisualizerSettingsStore';
 import type { DualTheme, ThemeMode, UrlBackgroundItem } from '../../../../../types';
@@ -73,6 +74,7 @@ export const planConfigImport = (text: string, theme: ConfigThemeControls): { co
     // Import accepts a bare shortcode/JSON or a full OBS URL (extracting its cfg param), so a look can be re-tuned from someone's link.
     const config = decompressConfig(extractCfgFromInput(text));
     const customFont = useTypographySettingsStore.getState().lyricsCustomFont;
+    const uiFontCustomFont = useUiFontSettingsStore.getState().uiFontCustomFont;
     const plan = buildImportPlan({
         incoming: config,
         current: { ...buildVisualSettingsConfig(), theme: theme.customTheme ?? null },
@@ -85,6 +87,11 @@ export const planConfigImport = (text: string, theme: ConfigThemeControls): { co
         customFontLabel: customFont?.label ?? customFont?.family ?? null,
         incomingFontAvailable: config.lyricsCustomFontFamily
             ? isFontFamilyAvailable(String(config.lyricsCustomFontFamily))
+            : undefined,
+        uiFontCustomFontSource: uiFontCustomFont?.source ?? null,
+        uiFontCustomFontLabel: uiFontCustomFont?.source === 'uploaded' ? uiFontCustomFont.label : uiFontCustomFont?.family ?? null,
+        incomingUiFontAvailable: config.uiFontCustomFontFamily
+            ? isFontFamilyAvailable(String(config.uiFontCustomFontFamily))
             : undefined,
         isCustomThemeActive: theme.bgMode === 'custom',
         // A config names an uploaded image or emoji pack by source, but never carries it.
@@ -231,6 +238,21 @@ export const applyImportedConfig = (config: any, keys: string[], theme: ConfigTh
     }
     if (has('subtitleFontFallbackFamilies') && config.subtitleFontFallbackFamilies) {
         storeTypographySettings.handleSetSubtitleFontFallbackFamilies(config.subtitleFontFallbackFamilies);
+    }
+    // The interface font: MiSans is bundled, the system stack always resolves, and a named family is
+    // set only when the config names one. An uploaded file never travels; the import plan says so.
+    if (has('uiFontMode') || has('uiFontCustomFontFamily')) {
+        const uiFontStore = useUiFontSettingsStore.getState();
+        const uiFontFamily = has('uiFontCustomFontFamily') && config.uiFontCustomFontFamily
+            ? String(config.uiFontCustomFontFamily)
+            : '';
+        if (config.uiFontMode === 'custom' && uiFontFamily) {
+            uiFontStore.handleSetUiFontCustomFamily(uiFontFamily);
+        } else if (config.uiFontMode === 'system' || config.uiFontMode === 'misans') {
+            uiFontStore.handleSetUiFontMode(config.uiFontMode);
+        } else if (uiFontFamily) {
+            uiFontStore.handleSetUiFontCustomFamily(uiFontFamily);
+        }
     }
 
     // Tunings. The bundle wins over the individual ones, which is why the plan never offers

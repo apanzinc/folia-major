@@ -6,6 +6,7 @@ import { getCustomCappellaAvatar } from '../services/cappellaAvatarPack';
 import { getMonetBackgroundImage } from '../services/monetBackgroundImage';
 import { getMonetPortraitImage } from '../services/monetPortraitImage';
 import { restoreUploadedLyricsFont } from '../services/customLyricsFont';
+import { restoreUploadedUiFont } from '../services/customUiFont';
 import { resolveStoredCappellaTuning } from '../components/visualizer/cappella/tuning';
 import { resolveStoredMonetBackgroundTuning } from '../components/visualizer/backgrounds/monet/tuning';
 import { resolveStoredMonetTuning } from '../components/visualizer/monet/tuning';
@@ -17,6 +18,7 @@ import { useVisualizerSettingsStore } from '../stores/useVisualizerSettingsStore
 import { useVisualizerAssetStore } from '../stores/useVisualizerAssetStore';
 import { useTypographySettingsStore } from '../stores/useTypographySettingsStore';
 import { resolveStoredCustomLyricsFont } from '../stores/useTypographySettingsStore';
+import { useUiFontSettingsStore } from '../stores/useUiFontSettingsStore';
 import { usePlayerChromeSettingsStore } from '../stores/usePlayerChromeSettingsStore';
 import { readSystemThemeIsDaylight } from '../stores/useThemeSettingsStore';
 import { useThemeSettingsStore } from '../stores/useThemeSettingsStore';
@@ -44,6 +46,14 @@ export function useAppPreferences() {
     const handleSetMonetBackgroundTuning = useVisualizerSettingsStore(state => state.handleSetMonetBackgroundTuning);
     const clearLyricsCustomFontAfterRestoreFailure = useTypographySettingsStore(state => state.clearLyricsCustomFontAfterRestoreFailure);
     const lyricsCustomFont = useTypographySettingsStore(state => state.lyricsCustomFont);
+    const clearUiFontAfterRestoreFailure = useUiFontSettingsStore(state => state.clearUiFontAfterRestoreFailure);
+    const uiFontCustomFont = useUiFontSettingsStore(state => state.uiFontCustomFont);
+    const uiFontMode = useUiFontSettingsStore(state => state.uiFontMode);
+    // Only a custom choice uses the uploaded file; restoring it while MiSans or the system stack is
+    // selected would load megabytes from IndexedDB on every boot for a font nothing renders.
+    const uploadedUiFontId = uiFontMode === 'custom' && uiFontCustomFont?.source === 'uploaded'
+        ? uiFontCustomFont.fontId
+        : null;
     const storedCappellaEmojiPack = useVisualizerAssetStore(state => state.storedCappellaEmojiPack);
     const storedCappellaAvatarPack = useVisualizerAssetStore(state => state.storedCappellaAvatarPack);
     const storedMonetBackgroundImage = useVisualizerAssetStore(state => state.storedMonetBackgroundImage);
@@ -315,6 +325,47 @@ export function useAppPreferences() {
             isCancelled = true;
         };
     }, [clearLyricsCustomFontAfterRestoreFailure, lyricsCustomFont?.fontId, lyricsCustomFont?.source]);
+
+    // The interface font can be uploaded too; its file lives in IndexedDB until the app reads it
+    // back, the same dance as the lyrics font above. The chosen family alone cannot render it.
+    useEffect(() => {
+        if (!uploadedUiFontId) {
+            return;
+        }
+
+        let isCancelled = false;
+
+        const restoreUploadedFont = async () => {
+            try {
+                const restoredFont = await restoreUploadedUiFont(uploadedUiFontId);
+                if (isCancelled) {
+                    return;
+                }
+
+                if (!restoredFont) {
+                    clearUiFontAfterRestoreFailure({
+                        type: 'info',
+                        text: i18n.t('notifications.uploadedFontUnavailable'),
+                    });
+                }
+            } catch (error) {
+                console.warn('[Preferences] Failed to restore uploaded interface font:', error);
+                if (isCancelled) {
+                    return;
+                }
+
+                clearUiFontAfterRestoreFailure({
+                    type: 'error',
+                    text: i18n.t('notifications.uploadedFontLoadFailed'),
+                });
+            }
+        };
+
+        void restoreUploadedFont();
+        return () => {
+            isCancelled = true;
+        };
+    }, [clearUiFontAfterRestoreFailure, uploadedUiFontId]);
 
     useEffect(() => {
         const nextImages = storedCappellaEmojiPack.flatMap(image => {

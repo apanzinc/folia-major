@@ -44,16 +44,29 @@
   src: url('https://cdn.jsdmirror.cn/npm/@fontsource/noto-serif-sc@5.2.9/files/noto-serif-sc-chinese-simplified-500-normal.woff2') format('woff2');
 }
 
+/* 内置界面字体：MiSans 可变字体（wght 150–700，完整字表），只保留 woff2 一份。
+   选择与自定义字体由 src/services/uiFont.ts 在运行时改写 --font-ui，这里只声明默认栈和字体资源。
+   字体许可与来源说明见 src/assets/fonts/misans/README.md。 */
+@font-face {
+  font-family: 'MiSans UI';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('./assets/fonts/misans/MiSansVF.woff2') format('woff2-variations');
+}
+
+:root {
+  /* 界面字体：默认系统栈；运行时按设置被改写。越南语需要的 Segoe UI 已在栈里，
+     所以不必再为 :lang(vi) 单独覆盖 body 的字体。 */
+  --font-ui: 'Inter', "Segoe UI", system-ui, var(--font-cjk-sans), sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
 /* Custom Global Styles */
 body {
   background-color: #09090b;
   color: #e4e4e7;
-  font-family: 'Inter', var(--font-cjk-sans), sans-serif;
+  font-family: var(--font-ui);
   overflow: hidden;
-}
-
-body:lang(vi) {
-  font-family: 'Inter', "Segoe UI", system-ui, var(--font-cjk-sans), sans-serif;
 }
 
 /* 播放页空闲时隐藏鼠标指针。挂点在播放页的视觉层容器上，弹窗和浮动控件都在它外面，

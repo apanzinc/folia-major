@@ -13,6 +13,7 @@ import { installFoliumHomePageDismissal } from './components/app/home/foliumHome
 import { installLibrarySuiteChromeCommands } from './library/app/installLibrarySuiteChromeCommands';
 import { noteFoliumFirstScreenMounted, startFoliumForMainWindow } from './mods/runtime/mainWindowStart';
 import { installNativeDragGuard } from './utils/nativeDragGuard';
+import { installUiFont } from './services/uiFont';
 import { prewarmSavedVisualizer, prewarmVisualizersWhenIdle } from './components/visualizer/prewarmVisualizers';
 import { bootNavidromeServerPreset } from './services/navidromeServerPreset';
 import { isNavidromeEnabled } from './services/navidromeService';
@@ -43,6 +44,9 @@ const FIRST_SCREEN_MOD_WAIT_MS = 1500;
 // here, for every surface this bundle mounts, rather than inside App so the remote-control and OBS
 // roots are covered too and App.tsx does not grow. See utils/nativeDragGuard.ts.
 installNativeDragGuard();
+// 界面字体在首屏之前写好 --font-ui：每个这个 bundle 挂载的窗口（主窗口、登录窗口、远程控制、OBS）都装，
+// 保存的字体选择会在第一次绘制前生效（见 services/uiFont.ts）。
+installUiFont();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
